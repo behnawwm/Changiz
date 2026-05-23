@@ -1,0 +1,26 @@
+languages:
+  - en
+  - fa
+
+changelog_types:
+  public:
+    max_length: 500
+    required: true
+  internal:
+    max_length: null
+    required: false
+
+version_file: version.properties
+
+paths_requiring_changiz:
+  - "*/src/**"
+  - "*.gradle.kts"
+
+paths_excluded:
+  - ".changiz/**"
+  - "*.md"
+  - ".gitlab-ci.yml"
+  - "buildSrc/**"
+  - "build-logic/**"
+
+branch_pattern: null
