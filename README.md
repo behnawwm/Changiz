@@ -1,70 +1,106 @@
 # Changiz 🏛️
 
+[![CI](https://github.com/behnawwm/changiz/actions/workflows/ci.yml/badge.svg)](https://github.com/behnawwm/changiz/actions/workflows/ci.yml)
+
 A changelog enforcer for Android/Gradle/Kotlin projects. Inspired by [changesets](https://github.com/changesets/changesets).
 
-Changiz ensures every meaningful code change is documented at MR time — never lose track of what changed between versions again.
+**Problem**: Changelog is forgotten when merging MRs. Changes lose track over time.
+
+**Solution**: Changiz requires a small YAML file per MR describing the change. CI blocks MRs without one. At release time, all entries are consumed to bump the version and generate changelogs.
 
 ## Features
 
-- **CI enforcement** — blocks MRs without changelog entries
-- **Multi-language** — public changelogs in EN + FA (configurable)
-- **Public + Internal** — separate user-facing and developer-facing notes
-- **Semver versioning** — automatic version bumps based on change types
-- **Market-ready** — generates plain text files for Google Play, Cafe Bazaar, Myket
-- **Gradle-native** — runs as standard Gradle tasks
+- 🚫 **CI enforcement** — blocks MRs without a changiz entry
+- 🌍 **Multi-language** — internal + public changelogs in multiple languages
+- 📱 **Market-ready** — generates plain text for Google Play, Cafe Bazaar, Myket
+- 🔢 **Semver** — automatic version bumps (major/minor/patch)
+- ⏭️ **Empty entries** — `--empty` flag for MRs that don't need a changelog
+- 🔌 **Gradle-native** — standard Gradle tasks, works with any Gradle project
 
 ## Quick Start
 
+```kotlin
+// build.gradle.kts
+plugins {
+    id("ir.behnawwm.changiz") version "0.1.0"
+}
+```
+
 ```bash
-# Create a changiz entry for your branch
-./changiz.sh create
-
-# Validate all pending entries
-./changiz.sh validate
-
-# Release: bump version + generate changelogs
-./changiz.sh consume
-
-# Or use Gradle directly:
+# Create a changiz entry
 ./gradlew createChangiz
+
+# For MRs with no changelog needed
+./gradlew createChangiz --empty
+
+# Validate entries
 ./gradlew validateChangiz
+
+# Release
 ./gradlew consumeChangiz
 ```
 
-## Installation
+## How it works
 
-Add the plugin to your project:
+```
+Developer creates MR
+        │
+        ▼
+./gradlew createChangiz  →  .changiz/feat-xyz.yaml
+        │
+        ▼
+CI runs checkChangizExists + validateChangiz
+        │
+        ▼
+MR merges → entries accumulate in .changiz/
+        │
+        ▼ (release time)
+./gradlew consumeChangiz
+        │
+        ├── Bumps version.properties
+        ├── Generates changelogs/versions/X.Y.Z/public_en.txt
+        ├── Generates changelogs/versions/X.Y.Z/public_fa.txt
+        ├── Updates changelogs/CHANGELOG.md
+        └── Deletes consumed .changiz/*.yaml
+```
 
-```kotlin
-// settings.gradle.kts
-pluginManagement {
-    plugins {
-        id("ir.behnawwm.changiz") version "0.1.0"
-    }
-}
+## Entry format
 
-// build.gradle.kts (root)
-plugins {
-    id("ir.behnawwm.changiz")
-}
+```yaml
+type: minor                    # major | minor | patch | empty
+modules:
+  - :app
+ticket: JIRA-1234
+internal:                      # Required
+  en: "Added biometric login"
+  fa: "اضافه شدن ورود بیومتریک"
+public:                        # Optional (for app stores)
+  en: "Added fingerprint login"
+  fa: "اضافه شدن ورود با اثر انگشت"
 ```
 
 ## Documentation
 
-- [Setup Guide](docs/SETUP.md) — Installation and CI integration
-- [Usage Guide](docs/GUIDE.md) — Daily workflow and commands
+- **[Setup Guide](docs/SETUP.md)** — Installation, integration options, CI setup
+- **[Developer Guide](docs/GUIDE.md)** — Daily workflow, commands, FAQ
 
-## Project Structure
+## Integration Options
 
+1. **Gradle Plugin Portal** — `id("ir.behnawwm.changiz") version "X.Y.Z"`
+2. **Copy-paste composite build** — Copy this repo into `build-logic/changiz/`
+3. **Git submodule** — `git submodule add` this repo
+
+See [SETUP.md](docs/SETUP.md) for details.
+
+## Releasing (for maintainers)
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+# GitHub Actions publishes to Gradle Plugin Portal + GitHub Packages
 ```
-.changiz/              # Pending changiz YAML entries
-  config.yaml          # Changiz configuration
-changelogs/            # Generated output
-  CHANGELOG.md         # Full internal changelog
-  CHANGELOG_PUBLIC.md  # Full public changelog
-  versions/            # Per-version archives with market files
-build-logic/changiz/   # Gradle plugin source
-```
+
+Requires `GRADLE_PUBLISH_KEY` and `GRADLE_PUBLISH_SECRET` secrets.
 
 ## License
 

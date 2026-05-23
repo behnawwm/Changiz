@@ -1,21 +1,26 @@
 # Changiz — Setup Guide
 
-## Prerequisites
+How to integrate Changiz into your Android/Gradle project.
 
-- Gradle 8.0+
-- Kotlin 1.9+
-- Git
+## Option A: From Gradle Plugin Portal
 
-## 1. Add the plugin
+```kotlin
+// build.gradle.kts (root)
+plugins {
+    id("ir.behnawwm.changiz") version "0.1.0"
+}
+```
 
-### Option A: From Maven Central (recommended for consumers)
+## Option B: Copy-paste (composite build)
+
+1. Clone or download the Changiz repo
+2. Copy the entire repo into your project as `build-logic/changiz/`
+3. Wire it up:
 
 ```kotlin
 // settings.gradle.kts
 pluginManagement {
-    plugins {
-        id("ir.behnawwm.changiz") version "0.1.0"
-    }
+    includeBuild("build-logic/changiz")
 }
 
 // build.gradle.kts (root)
@@ -24,38 +29,23 @@ plugins {
 }
 ```
 
-### Option B: Composite build (for development / customization)
+## Option C: Git submodule
 
-Copy `build-logic/changiz/` into your project.
-
-```kotlin
-// settings.gradle.kts
-pluginManagement {
-    includeBuild("build-logic")
-}
-
-// build.gradle.kts (root)
-plugins {
-    id("ir.behnawwm.changiz")
-}
+```bash
+git submodule add https://github.com/behnawwm/changiz.git build-logic/changiz
 ```
 
-## 2. Initialize
+Then same `settings.gradle.kts` setup as Option B.
+
+---
+
+## Initialize
+
+After applying the plugin, run:
 
 ```bash
 mkdir -p .changiz
-touch .changiz/.gitkeep
 ```
-
-Or use the shell script:
-
-```bash
-curl -sL https://raw.githubusercontent.com/behnawwm/changiz/main/changiz.sh -o changiz.sh
-chmod +x changiz.sh
-./changiz.sh init
-```
-
-## 3. Create config file
 
 Create `.changiz/config.yaml`:
 
@@ -67,10 +57,10 @@ languages:
 changelog_types:
   public:
     max_length: 500
-    required: true
+    required: false
   internal:
     max_length: null
-    required: false
+    required: true
 
 version_file: version.properties
 
@@ -86,8 +76,6 @@ paths_excluded:
   - "build-logic/**"
 ```
 
-## 4. Create version file
-
 Create `version.properties`:
 
 ```properties
@@ -97,9 +85,20 @@ VERSION_PATCH=0
 VERSION_CODE=10000
 ```
 
-Read it in `app/build.gradle.kts`:
+Create changelog directory:
+
+```bash
+mkdir -p changelogs/versions
+echo "# Changelog" > changelogs/CHANGELOG.md
+echo "# Changelog (Public)" > changelogs/CHANGELOG_PUBLIC.md
+```
+
+---
+
+## Read version in your app
 
 ```kotlin
+// app/build.gradle.kts
 val versionProps = java.util.Properties().apply {
     load(rootProject.file("version.properties").inputStream())
 }
@@ -112,7 +111,11 @@ android {
 }
 ```
 
-## 5. CI enforcement (GitLab CI)
+---
+
+## CI Enforcement
+
+### GitLab CI
 
 ```yaml
 changiz-check:
@@ -121,7 +124,6 @@ changiz-check:
     - if: '$CI_MERGE_REQUEST_IID'
   script:
     - ./gradlew checkChangizExists --targetBranch=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
-  allow_failure: false
 
 changiz-validate:
   stage: validate
@@ -131,19 +133,17 @@ changiz-validate:
     - ./gradlew validateChangiz
 ```
 
-## 6. Verify
+### GitHub Actions
+
+```yaml
+- name: Check changiz
+  run: ./gradlew checkChangizExists --targetBranch=origin/${{ github.base_ref }}
+```
+
+---
+
+## Verify
 
 ```bash
 ./gradlew tasks --group=changiz
-```
-
-Expected output:
-
-```
-Changiz tasks
--------------
-checkChangizExists - Check that a changiz entry exists for source changes
-consumeChangiz - Consume changiz entries, bump version, and generate changelogs
-createChangiz - Create a new changiz entry
-validateChangiz - Validate all pending changiz entries
 ```

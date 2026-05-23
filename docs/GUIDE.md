@@ -1,165 +1,149 @@
-# Changiz — Usage Guide
+# Changiz — Developer Guide
 
-## Overview
+## What is Changiz?
 
-Changiz enforces changelog documentation at MR time. Every code change that affects users must include a **changiz entry** — a small YAML file describing what changed, in both languages, for both public and internal audiences.
-
-## Daily Workflow
-
-### 1. Create a changiz entry when you're done with your feature/fix
-
-```bash
-./changiz.sh create
-# or
-./gradlew createChangiz
-```
-
-This will interactively ask:
-- **Bump type**: `patch` (bug fix), `minor` (new feature), `major` (breaking change), `none` (no release impact)
-- **Affected modules**: e.g. `:app`, `:feature:auth`
-- **Ticket ID**: e.g. `JIRA-1234` (optional)
-- **Public changelog** in each language (user-facing, goes to app stores)
-- **Internal changelog** in each language (developer-facing, optional)
-
-The file is created at `.changiz/{branch-slug}.yaml`.
-
-### 2. Commit the entry with your code
-
-```bash
-git add .changiz/
-git commit -m "Add changiz entry"
-```
-
-### 3. Push and create your MR
-
-CI will automatically:
-- ✅ Check that a changiz entry exists (if source files changed)
-- ✅ Validate the entry format and content
+Changiz enforces changelog documentation at MR time. Every code change must include a **changiz entry** — a YAML file describing what changed. This prevents the "forgot to update changelog" problem.
 
 ---
 
-## Changiz Entry Format
+## Workflow
+
+```
+1. Write code on your feature branch
+2. Run: ./gradlew createChangiz
+3. Commit the .changiz/*.yaml file with your code
+4. Push → CI validates the entry exists and is valid
+5. MR merges → entry accumulates in .changiz/
+6. Release time → ./gradlew consumeChangiz → version bumps, changelogs generated
+```
+
+---
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `./gradlew createChangiz` | Create entry interactively |
+| `./gradlew createChangiz --empty` | Create empty entry (no changelog needed) |
+| `./gradlew validateChangiz` | Validate pending entries |
+| `./gradlew checkChangizExists` | CI: verify entry exists |
+| `./gradlew consumeChangiz` | Release: bump version + generate changelogs |
+
+---
+
+## Creating an entry
+
+```bash
+./gradlew createChangiz
+```
+
+Prompts:
+```
+Bump type (major/minor/patch/empty) [patch]: minor
+Affected modules (comma-separated) []: :app,:feature:auth
+Ticket ID []: JIRA-1234
+Internal changelog (en) [required]: Added biometric login support
+Internal changelog (fa) [required]: اضافه شدن ورود بیومتریک
+Public changelog (en) [optional]: Added fingerprint login
+Public changelog (fa) [optional]: اضافه شدن ورود با اثر انگشت
+```
+
+Creates `.changiz/feat-biometric-auth.yaml`:
 
 ```yaml
-type: patch
+type: minor
 modules:
   - :app
   - :feature:auth
 ticket: JIRA-1234
 author: behnam
-public:
-  en: "Fixed a crash on the login screen"
-  fa: "رفع کرش در صفحه ورود"
 internal:
-  en: "Fixed NPE in LoginViewModel when token is null"
-  fa: "رفع NPE در LoginViewModel وقتی توکن null است"
+  en: "Added biometric login support"
+  fa: "اضافه شدن ورود بیومتریک"
+public:
+  en: "Added fingerprint login"
+  fa: "اضافه شدن ورود با اثر انگشت"
 ```
 
-### Fields
+---
+
+## Empty entries (skip changelog)
+
+For MRs that don't add a user-visible or developer-notable change (refactoring, CI tweaks, dependency bumps):
+
+```bash
+./gradlew createChangiz --empty
+```
+
+This creates a minimal file:
+```yaml
+type: empty
+```
+
+This satisfies CI enforcement but produces no changelog entry and no version bump.
+
+---
+
+## Entry format
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `type` | ✅ | `major`, `minor`, `patch`, or `none` |
-| `modules` | ❌ | List of affected Gradle modules |
-| `ticket` | ❌ | Jira/issue tracker ID |
-| `author` | ❌ | Auto-filled from git config |
-| `public` | ✅ | User-facing text per language (max 500 chars) |
-| `internal` | ❌ | Developer-facing text per language |
+| `type` | ✅ | `major`, `minor`, `patch`, or `empty` |
+| `internal` | ✅ | Developer-facing notes per language |
+| `public` | ❌ | User-facing notes for app stores (optional) |
+| `modules` | ❌ | Affected Gradle modules |
+| `ticket` | ❌ | Issue tracker ID |
+| `author` | ❌ | Auto-filled from git |
 
-### Bump type guide
+### Bump types
 
-| Type | When to use | Example |
-|------|-------------|---------|
-| `major` | Breaking changes, major redesigns | Migration to new auth system |
-| `minor` | New features, significant improvements | Added dark mode |
-| `patch` | Bug fixes, small improvements | Fixed crash on login |
-| `none` | No user impact (refactoring, CI, tests) | Migrated to Kotlin DSL |
+| Type | When | Example |
+|------|------|---------|
+| `major` | Breaking changes | New auth system |
+| `minor` | New features | Dark mode |
+| `patch` | Bug fixes | Crash fix |
+| `empty` | No changelog needed | CI config change |
 
 ---
 
-## Release Workflow
+## Release flow
 
 ```bash
-./changiz.sh consume
-# or
 ./gradlew consumeChangiz
 ```
 
-This will:
-1. Read all pending `.changiz/*.yaml` files
-2. Determine the version bump (highest type wins)
-3. Bump `version.properties`
-4. Generate per-language market files in `changelogs/versions/{version}/`
-5. Update `changelogs/CHANGELOG.md` and `changelogs/CHANGELOG_PUBLIC.md`
-6. Delete consumed entries
-
-### Output after release
-
-```
-changelogs/
-├── CHANGELOG.md
-├── CHANGELOG_PUBLIC.md
-└── versions/
-    └── 2.3.0/
-        ├── meta.yaml
-        ├── public_en.txt       → Google Play
-        ├── public_fa.txt       → Cafe Bazaar / Myket
-        ├── internal_en.md
-        └── internal_fa.md
-```
-
----
-
-## Shell Script Commands
-
-```bash
-./changiz.sh init       # Initialize .changiz/ directory and config
-./changiz.sh create     # Create a new changiz entry (interactive)
-./changiz.sh validate   # Validate all pending entries
-./changiz.sh check      # Check that entries exist for changes
-./changiz.sh consume    # Release: bump version + generate changelogs
-./changiz.sh status     # Show pending entries
-```
-
----
-
-## Skipping the requirement
-
-For changes that don't need a changelog entry:
-
-**Option 1**: Create a `none` type entry:
-```yaml
-type: none
-public:
-  en: ""
-  fa: ""
-```
-
-**Option 2**: Add `skip-changiz` label to MR (if configured in CI).
-
----
-
-## Commands Reference
-
-| Command | Purpose |
-|---------|---------|
-| `./gradlew createChangiz` | Create a new entry interactively |
-| `./gradlew validateChangiz` | Validate all pending entries |
-| `./gradlew checkChangizExists` | Verify entry exists for changes (CI) |
-| `./gradlew consumeChangiz` | Release: bump + generate + archive |
+What happens:
+1. Reads all `.changiz/*.yaml` (ignores `config.yaml`)
+2. Determines version bump (highest type among non-empty entries)
+3. Bumps `version.properties`
+4. Generates:
+   - `changelogs/versions/{version}/public_en.txt` → Google Play
+   - `changelogs/versions/{version}/public_fa.txt` → Cafe Bazaar / Myket
+   - `changelogs/versions/{version}/internal_en.md`
+   - `changelogs/versions/{version}/internal_fa.md`
+   - `changelogs/versions/{version}/meta.yaml`
+5. Prepends to `changelogs/CHANGELOG.md` and `changelogs/CHANGELOG_PUBLIC.md`
+6. Deletes consumed `.changiz/*.yaml` files
 
 ---
 
 ## FAQ
 
-**Q: One changiz entry per MR?**
-Yes. One entry describing the overall change is sufficient.
+**My MR doesn't change anything user-facing. What do I do?**
+Run `./gradlew createChangiz --empty`. This satisfies CI without generating changelog.
 
-**Q: Can I edit an entry after creating it?**
-Yes — it's just a YAML file.
+**Can I have multiple entries per MR?**
+Yes, but usually one is enough.
 
-**Q: What if I forget?**
-CI blocks your MR with a clear error message.
+**Can I edit the YAML manually?**
+Yes. It's just a file.
 
-**Q: Who writes the public changelog?**
-The developer at MR time. Product/QA can review before release.
+**What if CI fails saying "no changiz entry"?**
+Run `./gradlew createChangiz` or `./gradlew createChangiz --empty`, commit, push.
+
+**Who writes the public changelog?**
+Developer writes it at MR time. It's optional — if omitted, only internal changelog is generated.
+
+**What's the difference between internal and public?**
+- **Internal**: goes into `CHANGELOG.md`, visible to the team
+- **Public**: goes into market upload files (Google Play, Bazaar), visible to users
