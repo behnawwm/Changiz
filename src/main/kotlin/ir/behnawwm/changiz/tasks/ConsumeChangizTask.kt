@@ -25,7 +25,6 @@ abstract class ConsumeChangizTask : DefaultTask() {
             throw GradleException("No changiz entries to consume. Nothing to release.")
         }
 
-        // Filter out empty entries for version calculation
         val effectiveEntries = entries.filter { it.type != BumpType.EMPTY }
         if (effectiveEntries.isEmpty()) {
             logger.lifecycle("All entries are 'empty'. No version bump or changelog generated.")
@@ -44,8 +43,13 @@ abstract class ConsumeChangizTask : DefaultTask() {
         val versionDir = project.rootDir.resolve("changelogs/versions/$newVersion")
         versionDir.mkdirs()
 
-        config.languages.forEach { lang ->
+        // Generate public market files (multi-language)
+        config.publicLanguages.forEach { lang ->
             versionDir.resolve("public_$lang.txt").writeText(MarketRenderer.render(effectiveEntries, lang))
+        }
+
+        // Generate internal changelog (English only by default)
+        config.internalLanguages.forEach { lang ->
             versionDir.resolve("internal_$lang.md").writeText(ChangelogRenderer.renderVersionInternal(effectiveEntries, lang))
         }
 
@@ -62,7 +66,7 @@ abstract class ConsumeChangizTask : DefaultTask() {
         prependToFile(changelogFile, ChangelogRenderer.renderFullBlock(effectiveEntries, newVersion, today))
 
         val publicChangelogFile = project.rootDir.resolve("changelogs/CHANGELOG_PUBLIC.md")
-        prependToFile(publicChangelogFile, ChangelogRenderer.renderPublicBlock(effectiveEntries, newVersion, today, config.languages))
+        prependToFile(publicChangelogFile, ChangelogRenderer.renderPublicBlock(effectiveEntries, newVersion, today, config.publicLanguages))
 
         writeVersion(versionFile, newVersion)
         cleanupEntries(entries)

@@ -28,11 +28,9 @@ abstract class CreateChangizTask : DefaultTask() {
             counter++
         }
 
-        val yaml: String
         if (empty) {
-            yaml = "type: empty\n"
             val file = changizDir.resolve(fileName)
-            file.writeText(yaml)
+            file.writeText("type: empty\n")
             logger.lifecycle("✅ Created empty changiz: ${file.relativeTo(project.rootDir)}")
             return
         }
@@ -50,13 +48,15 @@ abstract class CreateChangizTask : DefaultTask() {
         val internalEntries = mutableMapOf<String, String>()
         val publicEntries = mutableMapOf<String, String>()
 
-        for (lang in config.languages) {
+        for (lang in config.internalLanguages) {
             internalEntries[lang] = prompt("Internal changelog ($lang) [required]", "")
+        }
+        for (lang in config.publicLanguages) {
             val pub = prompt("Public changelog ($lang) [optional, for app stores]", "")
             if (pub.isNotBlank()) publicEntries[lang] = pub
         }
 
-        yaml = buildString {
+        val yaml = buildString {
             appendLine("type: $type")
             if (modules.isNotBlank()) {
                 appendLine("modules:")

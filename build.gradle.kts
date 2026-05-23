@@ -28,7 +28,7 @@ gradlePlugin {
         create("changiz") {
             id = "ir.behnawwm.changiz"
             displayName = "Changiz"
-            description = "Changelog enforcer for Android/Gradle/Kotlin projects"
+            description = "Changelog enforcer for Gradle projects"
             tags.set(listOf("changelog", "android", "kotlin", "versioning", "ci"))
             implementationClass = "ir.behnawwm.changiz.ChangizPlugin"
         }

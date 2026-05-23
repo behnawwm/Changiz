@@ -15,9 +15,11 @@ object ConfigParser {
 
         @Suppress("UNCHECKED_CAST")
         val changelog = data["changelog_types"] as? Map<String, Map<String, Any>>
+        val languages = (data["languages"] as? Map<String, Any>)
 
         return ChangizConfig(
-            languages = (data["languages"] as? List<*>)?.map { it.toString() } ?: listOf("en", "fa"),
+            internalLanguages = (languages?.get("internal") as? List<*>)?.map { it.toString() } ?: listOf("en"),
+            publicLanguages = (languages?.get("public") as? List<*>)?.map { it.toString() } ?: listOf("en", "fa"),
             publicMaxLength = changelog?.get("public")?.get("max_length")?.toString()?.toIntOrNull() ?: 500,
             publicRequired = changelog?.get("public")?.get("required")?.toString()?.toBooleanStrictOrNull() ?: false,
             internalRequired = changelog?.get("internal")?.get("required")?.toString()?.toBooleanStrictOrNull() ?: true,

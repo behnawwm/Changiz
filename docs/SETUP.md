@@ -1,8 +1,8 @@
 # Changiz — Setup Guide
 
-How to integrate Changiz into your Android/Gradle project.
+## Integration Options
 
-## Option A: From Gradle Plugin Portal
+### Option 1: Gradle Plugin Portal (once published)
 
 ```kotlin
 // build.gradle.kts (root)
@@ -11,55 +11,88 @@ plugins {
 }
 ```
 
-## Option B: Copy-paste (composite build)
+### Option 2: Copy-paste as composite build
 
-1. Clone or download the Changiz repo
-2. Copy the entire repo into your project as `build-logic/changiz/`
-3. Wire it up:
+This is the simplest way to use Changiz in your project right now.
+
+**Step 1**: Copy the Changiz repo into your project:
+
+```bash
+# From your project root:
+mkdir -p build-logic
+cp -r /path/to/changiz build-logic/changiz
+```
+
+Your structure should look like:
+```
+your-project/
+├── build-logic/
+│   └── changiz/
+│       ├── build.gradle.kts
+│       ├── settings.gradle.kts
+│       ├── gradle.properties
+│       └── src/main/kotlin/ir/behnawwm/changiz/...
+├── app/
+├── settings.gradle.kts
+└── build.gradle.kts
+```
+
+**Step 2**: Include the composite build in your project's `settings.gradle.kts`:
 
 ```kotlin
-// settings.gradle.kts
+// settings.gradle.kts (your project root)
 pluginManagement {
     includeBuild("build-logic/changiz")
 }
 
-// build.gradle.kts (root)
+// ... rest of your settings
+```
+
+**Step 3**: Apply the plugin in your root `build.gradle.kts`:
+
+```kotlin
+// build.gradle.kts (your project root)
 plugins {
     id("ir.behnawwm.changiz")
 }
 ```
 
-## Option C: Git submodule
+**Step 4**: Done. Run `./gradlew tasks --group=changiz` to verify.
+
+### Option 3: Git submodule
 
 ```bash
 git submodule add https://github.com/behnawwm/changiz.git build-logic/changiz
 ```
 
-Then same `settings.gradle.kts` setup as Option B.
+Then same `settings.gradle.kts` setup as Option 2.
 
 ---
 
-## Initialize
-
-After applying the plugin, run:
+## Initialize Changiz in your project
 
 ```bash
 mkdir -p .changiz
+mkdir -p changelogs/versions
+echo "# Changelog" > changelogs/CHANGELOG.md
+echo "# Changelog (Public)" > changelogs/CHANGELOG_PUBLIC.md
 ```
 
 Create `.changiz/config.yaml`:
 
 ```yaml
 languages:
-  - en
-  - fa
+  internal:
+    - en
+  public:
+    - en
+    - fa
 
 changelog_types:
   public:
     max_length: 500
     required: false
   internal:
-    max_length: null
     required: true
 
 version_file: version.properties
@@ -83,14 +116,6 @@ VERSION_MAJOR=1
 VERSION_MINOR=0
 VERSION_PATCH=0
 VERSION_CODE=10000
-```
-
-Create changelog directory:
-
-```bash
-mkdir -p changelogs/versions
-echo "# Changelog" > changelogs/CHANGELOG.md
-echo "# Changelog (Public)" > changelogs/CHANGELOG_PUBLIC.md
 ```
 
 ---
@@ -138,6 +163,8 @@ changiz-validate:
 ```yaml
 - name: Check changiz
   run: ./gradlew checkChangizExists --targetBranch=origin/${{ github.base_ref }}
+- name: Validate changiz
+  run: ./gradlew validateChangiz
 ```
 
 ---
@@ -146,4 +173,14 @@ changiz-validate:
 
 ```bash
 ./gradlew tasks --group=changiz
+```
+
+Expected:
+```
+Changiz tasks
+-------------
+checkChangizExists - Check that a changiz entry exists for source changes
+consumeChangiz     - Consume changiz entries, bump version, and generate changelogs
+createChangiz      - Create a new changiz entry (use --empty for no-op)
+validateChangiz    - Validate all pending changiz entries
 ```

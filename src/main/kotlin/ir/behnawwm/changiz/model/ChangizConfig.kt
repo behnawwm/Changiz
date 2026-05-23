@@ -1,7 +1,8 @@
 package ir.behnawwm.changiz.model
 
 data class ChangizConfig(
-    val languages: List<String> = listOf("en", "fa"),
+    val internalLanguages: List<String> = listOf("en"),
+    val publicLanguages: List<String> = listOf("en", "fa"),
     val publicMaxLength: Int = 500,
     val publicRequired: Boolean = false,
     val internalRequired: Boolean = true,

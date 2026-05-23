@@ -2,7 +2,10 @@
 
 ## What is Changiz?
 
-Changiz enforces changelog documentation at MR time. Every code change must include a **changiz entry** — a YAML file describing what changed. This prevents the "forgot to update changelog" problem.
+Changiz enforces changelog documentation at MR time. Every code change must include a **changiz entry** — a YAML file describing what changed. CI blocks MRs without one.
+
+- **Internal changelog** (required, English only) — developer-facing, goes into `CHANGELOG.md`
+- **Public changelog** (optional, multi-language) — user-facing, goes to app stores
 
 ---
 
@@ -10,11 +13,11 @@ Changiz enforces changelog documentation at MR time. Every code change must incl
 
 ```
 1. Write code on your feature branch
-2. Run: ./gradlew createChangiz
-3. Commit the .changiz/*.yaml file with your code
-4. Push → CI validates the entry exists and is valid
-5. MR merges → entry accumulates in .changiz/
-6. Release time → ./gradlew consumeChangiz → version bumps, changelogs generated
+2. Run: ./gradlew createChangiz       (or --empty if no changelog needed)
+3. Commit the .changiz/*.yaml file
+4. Push → CI validates
+5. MR merges → entries accumulate
+6. Release time → ./gradlew consumeChangiz
 ```
 
 ---
@@ -37,15 +40,13 @@ Changiz enforces changelog documentation at MR time. Every code change must incl
 ./gradlew createChangiz
 ```
 
-Prompts:
 ```
 Bump type (major/minor/patch/empty) [patch]: minor
 Affected modules (comma-separated) []: :app,:feature:auth
 Ticket ID []: JIRA-1234
 Internal changelog (en) [required]: Added biometric login support
-Internal changelog (fa) [required]: اضافه شدن ورود بیومتریک
-Public changelog (en) [optional]: Added fingerprint login
-Public changelog (fa) [optional]: اضافه شدن ورود با اثر انگشت
+Public changelog (en) [optional, for app stores]: Added fingerprint login
+Public changelog (fa) [optional, for app stores]: اضافه شدن ورود با اثر انگشت
 ```
 
 Creates `.changiz/feat-biometric-auth.yaml`:
@@ -59,7 +60,6 @@ ticket: JIRA-1234
 author: behnam
 internal:
   en: "Added biometric login support"
-  fa: "اضافه شدن ورود بیومتریک"
 public:
   en: "Added fingerprint login"
   fa: "اضافه شدن ورود با اثر انگشت"
@@ -67,20 +67,20 @@ public:
 
 ---
 
-## Empty entries (skip changelog)
+## Empty entries
 
-For MRs that don't add a user-visible or developer-notable change (refactoring, CI tweaks, dependency bumps):
+For MRs that don't need a changelog (refactoring, CI, dependency bumps):
 
 ```bash
 ./gradlew createChangiz --empty
 ```
 
-This creates a minimal file:
+Creates:
 ```yaml
 type: empty
 ```
 
-This satisfies CI enforcement but produces no changelog entry and no version bump.
+This satisfies CI but produces no changelog and no version bump.
 
 ---
 
@@ -89,8 +89,8 @@ This satisfies CI enforcement but produces no changelog entry and no version bum
 | Field | Required | Description |
 |-------|----------|-------------|
 | `type` | ✅ | `major`, `minor`, `patch`, or `empty` |
-| `internal` | ✅ | Developer-facing notes per language |
-| `public` | ❌ | User-facing notes for app stores (optional) |
+| `internal` | ✅ | Developer-facing notes (English) |
+| `public` | ❌ | User-facing notes for app stores (EN + FA) |
 | `modules` | ❌ | Affected Gradle modules |
 | `ticket` | ❌ | Issue tracker ID |
 | `author` | ❌ | Auto-filled from git |
@@ -112,16 +112,17 @@ This satisfies CI enforcement but produces no changelog entry and no version bum
 ./gradlew consumeChangiz
 ```
 
-What happens:
-1. Reads all `.changiz/*.yaml` (ignores `config.yaml`)
+1. Reads all `.changiz/*.yaml`
 2. Determines version bump (highest type among non-empty entries)
 3. Bumps `version.properties`
 4. Generates:
-   - `changelogs/versions/{version}/public_en.txt` → Google Play
-   - `changelogs/versions/{version}/public_fa.txt` → Cafe Bazaar / Myket
-   - `changelogs/versions/{version}/internal_en.md`
-   - `changelogs/versions/{version}/internal_fa.md`
-   - `changelogs/versions/{version}/meta.yaml`
+   ```
+   changelogs/versions/2.3.0/
+   ├── internal_en.md          # Internal changelog (English)
+   ├── public_en.txt           # → Google Play
+   ├── public_fa.txt           # → Cafe Bazaar / Myket
+   └── meta.yaml               # Release metadata
+   ```
 5. Prepends to `changelogs/CHANGELOG.md` and `changelogs/CHANGELOG_PUBLIC.md`
 6. Deletes consumed `.changiz/*.yaml` files
 
@@ -129,21 +130,17 @@ What happens:
 
 ## FAQ
 
-**My MR doesn't change anything user-facing. What do I do?**
-Run `./gradlew createChangiz --empty`. This satisfies CI without generating changelog.
+**My MR doesn't change anything user-facing.**
+→ `./gradlew createChangiz --empty`
 
-**Can I have multiple entries per MR?**
-Yes, but usually one is enough.
+**Do I need to write public changelog?**
+→ No. Public is optional. Only internal (English) is required.
 
 **Can I edit the YAML manually?**
-Yes. It's just a file.
+→ Yes.
 
-**What if CI fails saying "no changiz entry"?**
-Run `./gradlew createChangiz` or `./gradlew createChangiz --empty`, commit, push.
+**What if CI fails?**
+→ Run `./gradlew createChangiz` or `./gradlew createChangiz --empty`, commit, push.
 
 **Who writes the public changelog?**
-Developer writes it at MR time. It's optional — if omitted, only internal changelog is generated.
-
-**What's the difference between internal and public?**
-- **Internal**: goes into `CHANGELOG.md`, visible to the team
-- **Public**: goes into market upload files (Google Play, Bazaar), visible to users
+→ Developer at MR time, or product/QA can add it before release.

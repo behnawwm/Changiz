@@ -22,21 +22,18 @@ abstract class ValidateChangizTask : DefaultTask() {
         val errors = mutableListOf<String>()
 
         entries.forEach { entry ->
-            // Empty entries skip all validation
             if (entry.type == BumpType.EMPTY) return@forEach
 
-            // Internal is required
             if (config.internalRequired) {
-                config.languages.forEach { lang ->
+                config.internalLanguages.forEach { lang ->
                     if (entry.internal[lang].isNullOrBlank()) {
                         errors += "[${entry.fileName}] Missing required internal changelog for language: $lang"
                     }
                 }
             }
 
-            // Public is optional but if present, check max length
             if (config.publicRequired) {
-                config.languages.forEach { lang ->
+                config.publicLanguages.forEach { lang ->
                     if (entry.public[lang].isNullOrBlank()) {
                         errors += "[${entry.fileName}] Missing required public changelog for language: $lang"
                     }

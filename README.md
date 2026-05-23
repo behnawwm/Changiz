@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/behnawwm/changiz/actions/workflows/ci.yml/badge.svg)](https://github.com/behnawwm/changiz/actions/workflows/ci.yml)
 
-A changelog enforcer for Android/Gradle/Kotlin projects. Inspired by [changesets](https://github.com/changesets/changesets).
+A changelog enforcer for Gradle projects. Inspired by [changesets](https://github.com/changesets/changesets).
 
 **Problem**: Changelog is forgotten when merging MRs. Changes lose track over time.
 
