@@ -1,8 +1,8 @@
-package ir.behnawwm.changiz.render
+package io.github.behnawwm.changiz.render
 
-import ir.behnawwm.changiz.model.BumpType
-import ir.behnawwm.changiz.model.ChangizEntry
-import ir.behnawwm.changiz.model.Version
+import io.github.behnawwm.changiz.model.BumpType
+import io.github.behnawwm.changiz.model.ChangizEntry
+import io.github.behnawwm.changiz.model.Version
 
 object ChangelogRenderer {
 

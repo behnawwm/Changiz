@@ -1,4 +1,4 @@
-package ir.behnawwm.changiz.model
+package io.github.behnawwm.changiz.model
 
 data class ChangizEntry(
     val fileName: String,

@@ -1,6 +1,6 @@
-package ir.behnawwm.changiz.config
+package io.github.behnawwm.changiz.config
 
-import ir.behnawwm.changiz.model.ChangizConfig
+import io.github.behnawwm.changiz.model.ChangizConfig
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 

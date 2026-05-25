@@ -1,4 +1,4 @@
-package ir.behnawwm.changiz.model
+package io.github.behnawwm.changiz.model
 
 data class Version(val major: Int, val minor: Int, val patch: Int) {
 

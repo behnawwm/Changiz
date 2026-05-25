@@ -1,4 +1,4 @@
-package ir.behnawwm.changiz.model
+package io.github.behnawwm.changiz.model
 
 enum class BumpType {
     EMPTY, PATCH, MINOR, MAJOR;

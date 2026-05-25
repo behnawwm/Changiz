@@ -14,7 +14,7 @@ Changiz is a **Gradle plugin** that enforces changelog documentation at MR time 
 changiz/                                    ← Root-level Gradle plugin project
 ├── build.gradle.kts                        # kotlin-dsl, java-gradle-plugin, maven-publish, com.gradle.plugin-publish
 ├── settings.gradle.kts                     # rootProject.name = "changiz"
-├── gradle.properties                       # GROUP=ir.behnawwm.changiz, VERSION=0.1.0
+├── gradle.properties                       # GROUP=io.github.behnawwm.changiz, VERSION=0.1.0
 ├── .github/workflows/
 │   ├── ci.yml                              # Build on push/PR to main
 │   └── release.yml                         # Publish on tag push (v*)
@@ -23,7 +23,7 @@ changiz/                                    ← Root-level Gradle plugin project
 │   └── GUIDE.md                            # Developer workflow guide
 ├── README.md
 ├── LICENSE                                 # MIT
-└── src/main/kotlin/ir/behnawwm/changiz/
+└── src/main/kotlin/io/github/behnawwm/changiz/
     ├── ChangizPlugin.kt                    # Registers 4 Gradle tasks
     ├── model/
     │   ├── BumpType.kt                     # enum: EMPTY, PATCH, MINOR, MAJOR
@@ -124,8 +124,8 @@ changelogs/
 
 ## Publishing
 
-- **Plugin ID**: `ir.behnawwm.changiz`
-- **Group**: `ir.behnawwm.changiz`
+- **Plugin ID**: `io.github.behnawwm.changiz`
+- **Group**: `io.github.behnawwm.changiz`
 - **Targets**: Gradle Plugin Portal + GitHub Packages
 - **Trigger**: Push a git tag `v*` → GitHub Actions publishes
 - **Secrets needed**: `GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`
@@ -133,7 +133,7 @@ changelogs/
 ## Integration (for consumers)
 
 Three options:
-1. **Gradle Plugin Portal**: `id("ir.behnawwm.changiz") version "X.Y.Z"`
+1. **Gradle Plugin Portal**: `id("io.github.behnawwm.changiz") version "X.Y.Z"`
 2. **Copy-paste**: Copy repo into `build-logic/changiz/`, add `includeBuild("build-logic/changiz")` to settings
 3. **Git submodule**: `git submodule add` into `build-logic/changiz/`
 

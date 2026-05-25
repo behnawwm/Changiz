@@ -26,11 +26,11 @@ gradlePlugin {
 
     plugins {
         create("changiz") {
-            id = "ir.behnawwm.changiz"
+            id = "io.github.behnawwm.changiz"
             displayName = "Changiz"
             description = "Changelog enforcer for Gradle projects"
             tags.set(listOf("changelog", "android", "kotlin", "versioning", "ci"))
-            implementationClass = "ir.behnawwm.changiz.ChangizPlugin"
+            implementationClass = "io.github.behnawwm.changiz.ChangizPlugin"
         }
     }
 }

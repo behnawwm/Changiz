@@ -1,12 +1,12 @@
-package ir.behnawwm.changiz.tasks
+package io.github.behnawwm.changiz.tasks
 
-import ir.behnawwm.changiz.config.ChangizParser
-import ir.behnawwm.changiz.config.ConfigParser
-import ir.behnawwm.changiz.model.BumpType
-import ir.behnawwm.changiz.model.ChangizEntry
-import ir.behnawwm.changiz.model.Version
-import ir.behnawwm.changiz.render.ChangelogRenderer
-import ir.behnawwm.changiz.render.MarketRenderer
+import io.github.behnawwm.changiz.config.ChangizParser
+import io.github.behnawwm.changiz.config.ConfigParser
+import io.github.behnawwm.changiz.model.BumpType
+import io.github.behnawwm.changiz.model.ChangizEntry
+import io.github.behnawwm.changiz.model.Version
+import io.github.behnawwm.changiz.render.ChangelogRenderer
+import io.github.behnawwm.changiz.render.MarketRenderer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction

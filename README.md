@@ -22,7 +22,7 @@ A changelog enforcer for Gradle projects. Inspired by [changesets](https://githu
 ```kotlin
 // build.gradle.kts
 plugins {
-    id("ir.behnawwm.changiz") version "0.1.0"
+    id("io.github.behnawwm.changiz") version "0.1.0"
 }
 ```
 
@@ -86,7 +86,7 @@ public:                        # Optional (for app stores)
 
 ## Integration Options
 
-1. **Gradle Plugin Portal** — `id("ir.behnawwm.changiz") version "X.Y.Z"`
+1. **Gradle Plugin Portal** — `id("io.github.behnawwm.changiz") version "X.Y.Z"`
 2. **Copy-paste composite build** — Copy this repo into `build-logic/changiz/`
 3. **Git submodule** — `git submodule add` this repo
 

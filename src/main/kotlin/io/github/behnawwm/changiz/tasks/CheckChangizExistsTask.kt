@@ -1,6 +1,6 @@
-package ir.behnawwm.changiz.tasks
+package io.github.behnawwm.changiz.tasks
 
-import ir.behnawwm.changiz.config.ConfigParser
+import io.github.behnawwm.changiz.config.ConfigParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input

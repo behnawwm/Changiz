@@ -1,4 +1,4 @@
-package ir.behnawwm.changiz.model
+package io.github.behnawwm.changiz.model
 
 data class ChangizConfig(
     val internalLanguages: List<String> = listOf("en"),

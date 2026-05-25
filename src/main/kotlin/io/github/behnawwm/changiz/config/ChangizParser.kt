@@ -1,7 +1,7 @@
-package ir.behnawwm.changiz.config
+package io.github.behnawwm.changiz.config
 
-import ir.behnawwm.changiz.model.BumpType
-import ir.behnawwm.changiz.model.ChangizEntry
+import io.github.behnawwm.changiz.model.BumpType
+import io.github.behnawwm.changiz.model.ChangizEntry
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 

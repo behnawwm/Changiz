@@ -7,7 +7,7 @@
 ```kotlin
 // build.gradle.kts (root)
 plugins {
-    id("ir.behnawwm.changiz") version "0.1.0"
+    id("io.github.behnawwm.changiz") version "0.1.0"
 }
 ```
 
@@ -31,7 +31,7 @@ your-project/
 │       ├── build.gradle.kts
 │       ├── settings.gradle.kts
 │       ├── gradle.properties
-│       └── src/main/kotlin/ir/behnawwm/changiz/...
+│       └── src/main/kotlin/io/github/behnawwm/changiz/...
 ├── app/
 ├── settings.gradle.kts
 └── build.gradle.kts
@@ -53,7 +53,7 @@ pluginManagement {
 ```kotlin
 // build.gradle.kts (your project root)
 plugins {
-    id("ir.behnawwm.changiz")
+    id("io.github.behnawwm.changiz")
 }
 ```
 

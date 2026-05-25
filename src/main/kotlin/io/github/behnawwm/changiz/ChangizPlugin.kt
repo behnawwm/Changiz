@@ -1,9 +1,9 @@
-package ir.behnawwm.changiz
+package io.github.behnawwm.changiz
 
-import ir.behnawwm.changiz.tasks.CheckChangizExistsTask
-import ir.behnawwm.changiz.tasks.ConsumeChangizTask
-import ir.behnawwm.changiz.tasks.CreateChangizTask
-import ir.behnawwm.changiz.tasks.ValidateChangizTask
+import io.github.behnawwm.changiz.tasks.CheckChangizExistsTask
+import io.github.behnawwm.changiz.tasks.ConsumeChangizTask
+import io.github.behnawwm.changiz.tasks.CreateChangizTask
+import io.github.behnawwm.changiz.tasks.ValidateChangizTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
